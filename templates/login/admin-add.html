@@ -9,7 +9,7 @@
 	{% endblock %}
 	
 {% block content %}
-	<body>
+	<>
         <div class="layui-fluid">
             <div class="layui-row">
                 <form class="layui-form" method="post">
@@ -156,6 +156,23 @@
                 });
 
             });</script> -->
+    <script>$("body").on("click",".addSubmit",function(){
+		$.ajax({
+             type:"post",
+             url:"/role/save",
+             data: $("form").serialize(),//表单数据
+             success:function(result){
+                 if(result["code"]=="100"){
+                     layer.close(layer.index);
+                     window.parent.location.reload();
+                 }
+                 if(result=="101"){
+                	 layer.msg(result["msg"]);
+                 }
+             }
+        });
+
+	});</script>
     <script>layui.use(['form', 'layer']);</script>
         
     </body>
