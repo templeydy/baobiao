@@ -9,23 +9,38 @@
 	{% endblock %}
 	
 {% block content %}
-	<>
+	<body>
         <div class="layui-fluid">
             <div class="layui-row">
-                <form class="layui-form" method="post">
+                <form class="layui-form" method="post" >
                   {%csrf_token%}
+                    {% if new_user %}
                   <div class="layui-form-item">
                       <label for="username" class="layui-form-label">
                           <span class="x-red">*</span>登录名
                       </label>
                       <div class="layui-input-inline">
                           <input type="text" id="username" name="username" required="" lay-verify="required"
-                          autocomplete="off" class="layui-input">
+                          autocomplete="off" class="layui-input" value="{{ new_user.name }}">
                       </div>
                       <div class="layui-form-mid layui-word-aux">
                           <span class="x-red">*</span>将会成为您唯一的登入名
                       </div>
                   </div>
+                        {% else %}
+                        <div class="layui-form-item">
+                      <label for="username" class="layui-form-label">
+                          <span class="x-red">*</span>登录名
+                      </label>
+                      <div class="layui-input-inline">
+                          <input type="text" id="username" name="username" required="" lay-verify="required"
+                          autocomplete="off" class="layui-input" value="">
+                      </div>
+                      <div class="layui-form-mid layui-word-aux">
+                          <span class="x-red">*</span>将会成为您唯一的登入名
+                      </div>
+                  </div>
+                    {% endif %}
                   <div class="layui-form-item">
                       <label for="phone" class="layui-form-label">
                           <span class="x-red">*</span>手机
@@ -83,7 +98,7 @@
                   <div class="layui-form-item">
                       <label for="L_repass" class="layui-form-label">
                       </label>
-                      <button  class="layui-btn" lay-filter="add" lay-submit type="submit">
+                      <button  class="layui-btn" lay-filter="add" lay-submit type="submit" >
                           增加
                       </button>
                   </div>
@@ -130,49 +145,90 @@
                 });
 
             });</script>-->
-        <!--<script>layui.use(['form', 'layer'],
+        <!--
+        <script>layui.use(['form', 'layer'],
             function() {
                 $ = layui.jquery;
                 var form = layui.form,
                 layer = layui.layer;
 
-
                 //监听提交
                 form.on('submit(add)',
                 function(data) {
-                    //console.log(data);
-                    //发异步，把数据提交给php
-                    layer.alert("增加成功", {
-                        icon: 6
-                    },
-                    function() {
+                    console.log(data);
+                    //layer.alert("增加成功", {
+                    //    icon: 6
+                    //},
+                    //function() {
                         //关闭当前frame
-                        xadmin.close();
+                     //   xadmin.close();
 
                         // 可以对父窗口进行刷新
-                        xadmin.father_reload();
-                    });
-                    return false;
+                     //   xadmin.father_reload();
+                    //});
+                    xadmin.close();
+                        // 可以对父窗口进行刷新
+                    //xadmin.father_reload();
+                    return true;
                 });
+            });</script>  -->
 
-            });</script> -->
-    <script>$("body").on("click",".addSubmit",function(){
-		$.ajax({
-             type:"post",
-             url:"/role/save",
-             data: $("form").serialize(),//表单数据
-             success:function(result){
-                 if(result["code"]=="100"){
-                     layer.close(layer.index);
-                     window.parent.location.reload();
-                 }
-                 if(result=="101"){
-                	 layer.msg(result["msg"]);
-                 }
-             }
-        });
 
-	});</script>
+
+         <script>layui.use(['form', 'layer'],
+            function() {
+                $ = layui.jquery;
+                var form = layui.form,
+                    layer = layui.layer;
+
+			//下边这个是得到父窗口索引，以作出判断，如果是1，则说明是弹窗，通过ajax提交数据，如果是未定义，则说明是
+			//通过左侧导航栏点击进来的，不需要通过ajax,通过正常post进行提交。
+                var index = parent.layer.getFrameIndex(window.name);
+                if(index==1){
+                    //监听提交
+                    form.on('submit(add)', function(data){
+                        //var cate_ename = $('#cate_ename').val();
+                        //var cate_title = $('#cate_title').val();
+                        //var cate_keywords = $('#cate_keywords').val();
+                        //var descripton = $('#descripton').val();
+                        //发异步，把数据提交给php
+                        $.ajax({
+                            {%csrf_token%}
+                            type: "POST",
+                            url: "/",
+                            //headers:{'X-CSRFtoken':$('#csrf').text()},
+                            data:data, //layui-form{cate_ename:cate_ename,cate_title:cate_title,cate_keywords:cate_keywords,descripton:descripton},
+                            dataType: "json",//这里特别需要注意，平常数据类型都是json,但是这里必须填html，否则无法提交成功
+                            success: function(response){
+
+                                if(response.status){
+                                    layer.alert("修改成功", {icon: 6},function () {
+                                        // // 获得frame索引
+                                        // var index = parent.layer.getFrameIndex(window.name);
+                                        // console.log(index);
+                                        // //关闭当前frame
+                                        // parent.layer.close(index);
+
+                                        xadmin.close();
+                                        // 可以对父窗口进行刷新
+                                        xadmin.father_reload();
+                                    });
+                                }else{
+                                    layer.msg("修改失败",{icon: 5});
+                                }
+                            }
+                        });
+
+                        return false;
+                    });
+
+                }
+
+
+            });
+</script>
+
+
     <script>layui.use(['form', 'layer']);</script>
         
     </body>

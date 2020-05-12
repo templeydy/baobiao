@@ -5,6 +5,8 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic import View
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import hashlib
+import json
+
 
 # Create your views here.
 
@@ -110,16 +112,19 @@ def add_staff_add(request):
                 new_user.email = email
                 new_user.role = role
                 new_user.save()
-                return HttpResponse('''layer.alert("增加成功", {
-                        icon: 6
-                    },
-                    function() {
-                        //关闭当前frame
-                        xadmin.close();
 
-                        // 可以对父窗口进行刷新
-                        xadmin.father_reload();
-                    });''')  # 自动跳转到登录页面
+                # resp = HttpResponse()  # 请求处理成功后，返回'OK'到html中显示
+                # resp['Access-Control-Allow-Origin'] = '*'
+                # resp['Access-Control-Allow-Methods'] = 'POST'
+                # resp['status'] = 200
+
+                resp = {'status': True, 'error': None, 'data': None}
+
+                #resp.headers['Access-Control-Allow-Origin'] = '*'
+                #resp.headers['Access-Control-Allow-Methods'] = 'POST'  # 响应POST
+                return HttpResponse(json.dumps(resp))
+                #return redirect('/add_staff/')  # 自动跳转到登录页面
+                #return render(request, 'login/admin-list.html', locals())
     register_form = AddForm()
     return render(request, 'login/admin-add.html',locals())
 
