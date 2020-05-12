@@ -98,7 +98,7 @@
                   <div class="layui-form-item">
                       <label for="L_repass" class="layui-form-label">
                       </label>
-                      <button  class="layui-btn" lay-filter="add" lay-submit type="submit" >
+                      <button  class="layui-btn" lay-filter="add" type="submit">
                           增加
                       </button>
                   </div>
@@ -145,7 +145,7 @@
                 });
 
             });</script>-->
-        <!--
+<!--
         <script>layui.use(['form', 'layer'],
             function() {
                 $ = layui.jquery;
@@ -156,22 +156,25 @@
                 form.on('submit(add)',
                 function(data) {
                     console.log(data);
-                    //layer.alert("增加成功", {
-                    //    icon: 6
-                    //},
-                    //function() {
+
+
+
+                    layer.alert("增加成功", {
+                        icon: 6
+                    },
+                    function() {
                         //关闭当前frame
-                     //   xadmin.close();
+                        xadmin.close();
 
                         // 可以对父窗口进行刷新
-                     //   xadmin.father_reload();
-                    //});
+                        xadmin.father_reload();
+                    });
                     xadmin.close();
                         // 可以对父窗口进行刷新
                     //xadmin.father_reload();
-                    return true;
+                    return false;
                 });
-            });</script>  -->
+            });</script>   -->
 
 
 
@@ -187,20 +190,26 @@
                 if(index==1){
                     //监听提交
                     form.on('submit(add)', function(data){
+                        var username = $('#username').val();
+                        var phone = $('#phone').val();
+                        var password1 = $('#password1').val();
+                        var email = $('#email').val();
+                        var role = $('#role').val();
                         //var cate_ename = $('#cate_ename').val();
                         //var cate_title = $('#cate_title').val();
                         //var cate_keywords = $('#cate_keywords').val();
                         //var descripton = $('#descripton').val();
                         //发异步，把数据提交给php
                         $.ajax({
-                            {%csrf_token%}
+
                             type: "POST",
                             url: "/",
+                            headers: { "X-CSRFToken": "{{ csrf_token }}" },
                             //headers:{'X-CSRFtoken':$('#csrf').text()},
-                            data:data, //layui-form{cate_ename:cate_ename,cate_title:cate_title,cate_keywords:cate_keywords,descripton:descripton},
+                            data:{username:username,phone:phone,password1:password1,email:email,role:role},
                             dataType: "json",//这里特别需要注意，平常数据类型都是json,但是这里必须填html，否则无法提交成功
                             success: function(response){
-
+                               // layer.alert("修改成功");   //test
                                 if(response.status){
                                     layer.alert("修改成功", {icon: 6},function () {
                                         // // 获得frame索引
