@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect,HttpResponse
 from . import models
-from .forms import UserForm,AddForm,UpdateForm
+from .forms import UserForm,AddForm,UpdateForm,DelForm
 from .models import User
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic import View
@@ -198,6 +198,19 @@ def add_staff_update(request,id):
                 #return render(request, 'login/admin-list.html', locals())
     #register_form = AddForm()
     return render(request, 'login/admin-edit.html',{'user_obj':user_obj})
+
+def add_staff_del(request,id):
+    if not request.session.get('is_login', None):
+        return redirect('/index/')
+
+    if request.method == "GET":
+        del_form = DelForm(request.GET)
+
+        models.User.objects.filter(id=id).delete()
+
+        resp = {'status': True, 'error': None, 'data': '删除成功'}
+        return HttpResponse(json.dumps(resp))
+        #return redirect('/add_staff/')
 
 # class AddStaff(View):
 #     template_name = 'login/admin-add.html'

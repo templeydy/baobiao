@@ -50,10 +50,27 @@
 
       /*用户-删除*/
       function member_del(obj,id){
-          layer.confirm('确认要删除吗？',function(index){
+          layer.confirm('确认要删除吗？',function(data){
               //发异步删除数据
-              $(obj).parents("tr").remove();
-              layer.msg('已删除!',{icon:1,time:1000});
+              $.ajax({
+                            type: "GET",
+                            url: "{% url 'loginapp:add_staff_del' id %}",
+                            //headers: { "X-CSRFToken": "{{ csrf_token }}" },
+                            //headers:{'X-CSRFtoken':$('#csrf').text()},
+                            data:{id:id,username:username,phone:phone,password1:password1,password2:password2,email:email,role:role},
+                            dataType: "json",//这里特别需要注意，平常数据类型都是json,但是这里必须填html，否则无法提交成功
+                            success: function(response){
+
+                                if(response.status){
+                                    $(obj).parents("tr").remove();
+                                    layer.msg(response.data,{icon:1,time:1000});
+                                }else{
+                                    layer.msg(response.data,{icon: 5});
+                                }
+                            }
+                        });
+
+
           });
       }
 
@@ -128,7 +145,7 @@
                               {% for i in user_list %}
                                 <tr>
 
-                                  <td  style="display:none;">{{ i.id }}</td>
+                                  <td id="id" style="display:none;">{{ i.id }}</td>
                                   <td>{{ i.name }}</td>
                                   <td>{{ i.phone }}</td>
                                   <td>{{ i.email }}</td>
@@ -140,7 +157,7 @@
                                     <a title="编辑"  onclick="xadmin.open('编辑','{% url 'loginapp:add_staff_update' i.id %}')" href="javascript:;">
                                       <i class="layui-icon">&#xe642;</i>
                                     </a>
-                                    <a title="删除" onclick="member_del(this,'要删除的id')" href="javascript:;">
+                                    <a title="删除" onclick="member_del(this,{{ i.id }})" href="">
                                       <i class="layui-icon">&#xe640;</i>
                                     </a>
                                   </td>
