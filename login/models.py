@@ -15,7 +15,7 @@ class User(models.Model):
     )
     name = models.CharField(max_length=128,unique=True)
     password = models.CharField(max_length=256)
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=False)
     phone = models.CharField(max_length=50,default='')
     sex = models.CharField(max_length=32,choices=gender,default='male')
     role = models.CharField(max_length=32, choices=poster, default='manager')

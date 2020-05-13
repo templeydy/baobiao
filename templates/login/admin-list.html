@@ -115,6 +115,7 @@
                             <table class="layui-table layui-form">
                               <thead>
                                 <tr>
+                                    <th style="display:none;">ID</th>
                                   <th>登录名</th>
                                   <th>手机</th>
                                   <th>邮箱</th>
@@ -127,7 +128,7 @@
                               {% for i in user_list %}
                                 <tr>
 
-
+                                  <td  style="display:none;">{{ i.id }}</td>
                                   <td>{{ i.name }}</td>
                                   <td>{{ i.phone }}</td>
                                   <td>{{ i.email }}</td>
@@ -136,7 +137,7 @@
 
                                   <td class="td-manage">
 
-                                    <a title="编辑"  onclick="xadmin.open('编辑','admin-edit.html')" href="javascript:;">
+                                    <a title="编辑"  onclick="xadmin.open('编辑','{% url 'loginapp:add_staff_update' i.id %}')" href="javascript:;">
                                       <i class="layui-icon">&#xe642;</i>
                                     </a>
                                     <a title="删除" onclick="member_del(this,'要删除的id')" href="javascript:;">

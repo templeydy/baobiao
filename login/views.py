@@ -1,6 +1,7 @@
 from django.shortcuts import render,redirect,HttpResponse
 from . import models
-from .forms import UserForm,AddForm
+from .forms import UserForm,AddForm,UpdateForm
+from .models import User
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic import View
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -81,8 +82,9 @@ def add_staff_add(request):
 
     if request.method == "POST":
         register_form = AddForm(request.POST)
-        message = "请检查填写的内容！"
-        print(register_form.errors.as_text())
+        resp = {'status': False, 'error': None, 'data': '请检查填写的内容！'}
+
+        #print(register_form.errors.as_text())
         if register_form.is_valid():  # 获取数据
             username = register_form.cleaned_data['username']
             phone = register_form.cleaned_data['phone']
@@ -93,17 +95,17 @@ def add_staff_add(request):
 
 
             if password1 != password2:  # 判断两次密码是否相同
-                message = "两次输入的密码不同！"
-                return render(request, 'login/admin-add.html', locals())
+                resp = {'status': False, 'error': None, 'data': '两次输入的密码不同！'}
+                return HttpResponse(json.dumps(resp))
             else:
                 same_name_user = models.User.objects.filter(name=username)
                 if same_name_user:  # 用户名唯一
-                    message = '用户已经存在，请重新选择用户名！'
-                    return render(request, 'login/admin-add.html', locals())
+                    resp = {'status': False, 'error': None, 'data': '用户已经存在，请重新选择用户名！'}
+                    return HttpResponse(json.dumps(resp))
                 same_email_user = models.User.objects.filter(email=email)
                 if same_email_user:  # 邮箱地址唯一
-                    message = '该邮箱地址已被注册，请使用别的邮箱！'
-                    return render(request, 'login/admin-add.html', locals())
+                    resp = {'status': False, 'error': None, 'data': '该邮箱地址已被注册，请使用别的邮箱！'}
+                    return HttpResponse(json.dumps(resp))
                 # 当一切都OK的情况下，创建新用户
                 new_user = models.User.objects.create()
                 new_user.name = username
@@ -118,7 +120,8 @@ def add_staff_add(request):
                 # resp['Access-Control-Allow-Methods'] = 'POST'
                 # resp['status'] = 200
 
-                resp = {'status': True, 'error': None, 'data': None}
+                resp = {'status': True, 'error': None, 'data': '添加成功'}
+
 
                 #resp.headers['Access-Control-Allow-Origin'] = '*'
                 #resp.headers['Access-Control-Allow-Methods'] = 'POST'  # 响应POST
@@ -127,6 +130,74 @@ def add_staff_add(request):
                 #return render(request, 'login/admin-list.html', locals())
     register_form = AddForm()
     return render(request, 'login/admin-add.html',locals())
+
+def add_staff_update(request,id):
+    if not request.session.get('is_login', None):
+        return redirect('/index/')
+
+    user_obj = User.objects.get(pk=id)
+
+    if request.method == "POST":
+        register_form = UpdateForm(request.POST)
+
+        #print(register_form.errors.as_text())
+        if register_form.is_valid():  # 获取数据
+            username = register_form.cleaned_data['username']
+            phone = register_form.cleaned_data['phone']
+            email = register_form.cleaned_data['email']
+            role = register_form.cleaned_data['role']
+            password1 = register_form.cleaned_data['password1']
+            password2 = register_form.cleaned_data['password2']
+
+
+            if password1 != password2:  # 判断两次密码是否相同
+                resp = {'status': False, 'error': None, 'data': '两次输入的密码不同！'}
+                return HttpResponse(json.dumps(resp))
+            else:
+                same_name_user = models.User.objects.filter(name=username)
+
+                #print(same_name_user.name)
+                #print(same_name_user.email)
+                # if same_name_user:  # 用户名唯一
+                #     #if user_obj.name.name != same_name_user.name:
+                #         resp = {'status': False, 'error': None, 'data': '用户已经存在，请重新选择用户名！'}
+                #         return HttpResponse(json.dumps(resp))
+                # same_email_user = models.User.objects.filter(email=email)
+                # if same_email_user:  # 邮箱地址唯一
+                #     #if user_obj.email != same_email_user.email:
+                #         resp = {'status': False, 'error': None, 'data': '该邮箱地址已被注册，请使用别的邮箱！'}
+                #         return HttpResponse(json.dumps(resp))
+                # 当一切都OK的情况下，创建新用户
+                models.User.objects.filter(id=id).update(
+                    name=username,
+                    phone = phone,
+                    password = password1,
+                    email=email,
+                    role=role
+                )
+                # new_user = models.User.objects.get(id=id)
+                # new_user.name = username
+                # new_user.phone = phone
+                # new_user.password = password1
+                # new_user.email = email
+                # new_user.role = role
+                # new_user.save()
+
+                # resp = HttpResponse()  # 请求处理成功后，返回'OK'到html中显示
+                # resp['Access-Control-Allow-Origin'] = '*'
+                # resp['Access-Control-Allow-Methods'] = 'POST'
+                # resp['status'] = 200
+
+                resp = {'status': True, 'error': None, 'data': '修改成功'}
+
+
+                #resp.headers['Access-Control-Allow-Origin'] = '*'
+                #resp.headers['Access-Control-Allow-Methods'] = 'POST'  # 响应POST
+                return HttpResponse(json.dumps(resp))
+                #return redirect('/add_staff/')  # 自动跳转到登录页面
+                #return render(request, 'login/admin-list.html', locals())
+    #register_form = AddForm()
+    return render(request, 'login/admin-edit.html',{'user_obj':user_obj})
 
 # class AddStaff(View):
 #     template_name = 'login/admin-add.html'
